@@ -1,0 +1,49 @@
+unit Controller.Observer.Item;
+
+interface
+
+uses
+  Controller.Observer.Interfaces, System.Generics.Collections, System.Sysutils;
+
+type
+  TControllerObserverItem = class(TInterfacedObject, ISubjectItem)
+    private
+      FList : TList<IObserverItem>;
+    public
+      constructor Create;
+      constructor Destroy;
+      class function New : ISubjectItem;
+      function Add(Value : iObserverItem) : ISubjectItem;
+      function Notify(Value : TRecordItem) : ISubjectItem;
+  end;
+
+implementation
+
+{ TControllerVenda }
+
+constructor TControllerObserverItem.Create;
+begin
+  FList := TList<IObserverItem>.Create;
+end;
+
+constructor TControllerObserverItem.Destroy;
+begin
+  FreeAndNil(TList<IObserverItem>);
+end;
+
+function TControllerObserverItem.Add(Value: iObserverItem): ISubjectItem;
+begin
+
+end;
+
+class function TControllerObserverItem.New : ISubjectItem;
+begin
+  Result := Self;
+end;
+
+function TControllerObserverItem.Notify(Value: TRecordItem): ISubjectItem;
+begin
+
+end;
+
+end.

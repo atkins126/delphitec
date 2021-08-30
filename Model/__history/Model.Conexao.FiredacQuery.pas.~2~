@@ -1,0 +1,41 @@
+unit Model.Conexao.FiredacQuery;
+
+interface
+
+type
+  TModelConexaoFiredacQuery = class (TInterfacedObject, iModelQuery)
+    private
+      FQuery : TFDMemtable;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iModelQuery;
+      function Query : TDataSet;
+  end;
+
+implementation
+
+{ TModelConexaoFiredacQuery }
+
+constructor TModelConexaoFiredacQuery.Create;
+begin
+  FQuery := TFDMemtable.Create(nil);
+end;
+
+destructor TModelConexaoFiredacQuery.Destroy;
+begin
+  FQuery.DisposeOf;
+  inherited;
+end;
+
+class function TModelConexaoFiredacQuery.New: iModelQuery;
+begin
+  Result := Self.Create;
+end;
+
+function TModelConexaoFiredacQuery.Query: TDataSet;
+begin
+  Result := FQuery;
+end;
+
+end.

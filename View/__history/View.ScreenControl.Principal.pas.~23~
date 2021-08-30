@@ -1,0 +1,58 @@
+unit View.ScreenControl.Principal;
+
+interface
+
+uses
+  View.Interfaces, Vcl.ComCtrls, Model.Vendas.SQL;
+
+type
+   TOperacao = (opNovo, opAlterar, opNenhum);
+   TViewScreenControlPrincipal = class
+   private
+    oModelVendasSQL : TModelVendasSQL;
+    function Gravar(Operacao: TOperacao): boolean;
+   public
+     constructor Create;
+     destructor Destroy; override;
+
+    end;
+
+implementation
+
+uses
+  Vcl.ComCtrls, System.Classes, Vcl.ExtCtrls, Vcl.DBCtrls;
+
+{ TViewScreenControlPrincipal }
+
+constructor TViewScreenControlPrincipal.Create;
+begin
+
+end;
+
+destructor TViewScreenControlPrincipal.Destroy;
+begin
+
+  inherited;
+end;
+
+function TViewScreenControlPrincipal.Gravar(Operacao : TOperacao; oEdit : TLabeledEdit;
+         oComboBox : TDBLookupComboBox): Boolean;
+begin
+  Result:=False;
+  if oEdit.Text<>EmptyStr then
+     oModelVendasSQL.VendaId := StrToInt(oEdit.Text)
+  else
+     oModelVendasSQL.VendaId:=0;
+
+  oModelVendasSQL.ClienteId        := oComboBox.KeyValue;
+  oModelVendasSQL.DataVenda        :=edtDataVenda.Date;
+  oModelVendasSQL.TotalVenda       :=edtValorTotal.Value;
+
+  if (Operacao=opNovo) then begin
+     oVenda.VendaId:=oVenda.Inserir(dtmVendas.cdsItensVenda);
+  end
+  else if (EstadoDoCadastro=ecAlterar) then
+     oModelVendasSQL.Atualizar(dtmVendas.cdsItensVenda);
+end;
+
+end.

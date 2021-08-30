@@ -1,0 +1,117 @@
+unit DelphiTec.View.Principal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Controller.Interfaces, Vcl.StdCtrls,
+  Controller.Observer.Interfaces, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.Buttons, Vcl.DBCtrls, Vcl.Imaging.pngimage, RxCurrEdit,
+  Vcl.Mask, RxToolEdit, View.ScreenControl.Principal;
+
+type
+  TfrmPrincipal = class(TForm, IObserverItem)
+    Edit1: TEdit;
+    ListBox1: TListBox;
+    Button1: TButton;
+    pnlFull: TPanel;
+    pnlLeft: TPanel;
+    Panel1: TPanel;
+    pnlRight: TPanel;
+    pgcVendas: TPageControl;
+    tabConsulta: TTabSheet;
+    tabCadastro: TTabSheet;
+    spbNovo: TSpeedButton;
+    spbEditar: TSpeedButton;
+    spbSalvar: TSpeedButton;
+    spbDeletar: TSpeedButton;
+    spbCancelar: TSpeedButton;
+    imgLogo: TImage;
+    edtBuscar: TEdit;
+    lblIndice: TLabel;
+    grdVendas: TDBGrid;
+    pnlBottom: TPanel;
+    spbFecharTela: TSpeedButton;
+    edtVendaId: TLabeledEdit;
+    lkpCliente: TDBLookupComboBox;
+    edtDataVenda: TDateEdit;
+    Label3: TLabel;
+    lkpProduto: TDBLookupComboBox;
+    Label4: TLabel;
+    edtValorUnitario: TCurrencyEdit;
+    edtQuantidade: TCurrencyEdit;
+    Label6: TLabel;
+    Label5: TLabel;
+    Label7: TLabel;
+    edtTotalProduto: TCurrencyEdit;
+    Label1: TLabel;
+    pnlVenda: TPanel;
+    pnlTotalizador: TPanel;
+    Label2: TLabel;
+    edtValorTotal: TCurrencyEdit;
+    dbgridItensVenda: TDBGrid;
+    spbPesquisar: TSpeedButton;
+    spbAdicionarProduto: TSpeedButton;
+    spbRemoverProduto: TSpeedButton;
+    procedure FormCreate(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+    FVenda : IControllerVenda;
+    FOperacao : TOperacao;
+    procedure VenderItem;
+    function UpdateItem(Value : TRecordItem) : IObserverItem;
+    procedure Novo;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+
+implementation
+
+uses
+  Controller.Vendas, DelphiTec.View.Screen;
+
+{$R *.dfm}
+
+procedure TfrmPrincipal.Button1Click(Sender: TObject);
+begin
+  ViewScreen1.ExibirForm(FVenda);
+end;
+
+procedure TfrmPrincipal.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then //#13 é a representação do enter
+    VenderItem;
+end;
+
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+begin
+  FVenda := TControllerVenda.New;
+  FVenda.ObserverItem.Add(Self);
+end;
+
+function TfrmPrincipal.UpdateItem(Value: TRecordItem): IObserverItem;
+begin
+  ListBox1.Items.Add(Value.Descricao);
+end;
+
+procedure TfrmPrincipal.VenderItem;
+begin
+  if StrToIntDef(Edit1.Text, 0) > 0 then
+    FVenda.Item.Codigo(StrToInt(Edit1.Text)).Vender
+  else
+    ShowMessage('Insira um código');
+end;
+
+procedure TfrmPrincipal.Novo;
+begin
+  FOperacao := opInserir;
+  pgcVendas.ActivePage :=
+end;
+
+
+end.

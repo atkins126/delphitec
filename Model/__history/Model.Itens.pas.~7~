@@ -1,0 +1,22 @@
+unit Model.Itens;
+
+interface
+
+uses
+  Model.Interfaces;
+
+Type
+  TModelItens = class(TInterfacedObject, IModelItem)
+    private
+      FParent : iModelVenda;
+    public
+      constructor Create;
+      class function New : IModelItem;
+      function Codigo(Value : Integer) : IModelItem;
+      function Vender : IModelItem;
+      function &End : IModelVenda;
+  end;
+
+implementation
+
+end.

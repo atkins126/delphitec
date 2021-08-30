@@ -1,0 +1,12 @@
+unit Model.Conexao.Query;
+
+interface
+
+IModelQuery = interface
+  ['{550BE29D-BD31-4C0A-AA18-672F9C582292}']
+  function Query : TDataSet;
+end;
+
+implementation
+
+end.

@@ -1,0 +1,56 @@
+unit Controller.Produto;
+
+interface
+
+uses
+  System.Generics.Collections, System.Sysutils, Controller.Interfaces, Data.DB,
+  FireDAC.Comp.Client, Model.Interfaces, Model.Produto, DAO.Interfaces;
+
+type
+  TControllerProduto = class(TInterfacedObject, IControllerProduto)
+  private
+    FConexao: IConexao;
+  public
+    procedure AfterConstruction; override;
+    function Selecionar(AId: Integer): IModelProduto;
+  end;
+
+implementation
+
+procedure TControllerProduto.AfterConstruction;
+begin
+  inherited;
+  FConexao := CreateModel;
+end;
+
+function TControllerProduto.Selecionar(AId: Integer): IModelProduto;
+var
+  ProdutoDS: TFDQuery;
+begin
+  Result := nil;
+  ProdutoDS := TFDQuery.Create(nil);
+  if FConexao.AbreTabela(
+              'SELECT produtoId,'+
+              '       nome, '+
+              '       descricao, '+
+              '       valor, '+
+              '       quantidade, '+
+              '       categoriaId '+
+              '  FROM produtos '+
+              ' WHERE produtoId=' + AId.ToString, ProdutoDS) then
+  begin
+    Result := TModelProduto.Create;
+    Try
+      Result.F_produtoId     := Qry.FieldByName('produtoId').AsInteger;
+      Result.F_produtoNome          := Qry.FieldByName('produtoNome').AsString;
+      Result.F_produtoDescricao     := Qry.FieldByName('produtoDescricao').AsString;
+      Result.F_produtoValor         := Qry.FieldByName('produtoValor').AsFloat;
+      Result.F_produtoQuantidade    := Qry.FieldByName('produtoQuantidade').AsFloat;
+      Result.F_categoriaId   := Qry.FieldByName('categoriaId').AsInteger;
+    Except
+      Result := false;
+    End;
+  end;
+end;
+
+end.

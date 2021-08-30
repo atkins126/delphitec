@@ -1,0 +1,29 @@
+unit View.ScreenControl.Principal;
+
+interface
+
+uses
+  View.Interfaces, Vcl.ComCtrls;
+
+type
+   TOperacao = (opNovo, opAlterar, opNenhum);
+   TAcaoExcluirEstoque = (aeeApagar, aeeAlterar);
+
+implementation
+
+{ TViewScreenControlPrincipal }
+
+constructor TViewScreenControlPrincipal.Create;
+begin
+
+end;
+
+destructor TViewScreenControlPrincipal.Destroy;
+begin
+
+  inherited;
+end;
+
+
+
+end.

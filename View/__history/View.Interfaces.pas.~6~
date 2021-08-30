@@ -1,0 +1,10 @@
+unit View.Interfaces;
+
+interface
+
+uses
+  Vcl.ComCtrls;
+
+implementation
+
+end.

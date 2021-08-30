@@ -1,0 +1,52 @@
+unit Model.Venda;
+
+interface
+uses
+  Model.Interfaces, Controller.Interfaces, Controller.Observer.Interfaces;
+
+Type
+  TModelVenda = class(TInterfacedObject, IModelVenda)
+    private
+      FItem : IModelItem;
+      FObserverItem : iSubjectItem;
+    public
+      constructor Create;
+      class function New : IModelVenda;
+      function Item : IModelItem;
+      function ObserverItem(Value : ISubjectItem) : IModelVenda; overload;
+      function ObserverItem : iSubjectItem; overload;
+  end;
+
+implementation
+
+uses
+  Model.Itens;
+
+{ TModelVenda }
+
+constructor TModelVenda.Create;
+begin
+  FItem := TModelItens.New(Self);
+end;
+
+function TModelVenda.Item: IModelItem;
+begin
+  Result := FItem;
+end;
+
+class function TModelVenda.New: IModelVenda;
+begin
+  Result := Self.Create;
+end;
+
+function TModelVenda.ObserverItem: iSubjectItem;
+begin
+  Result := FObserverItem;
+end;
+
+function TModelVenda.ObserverItem(Value: ISubjectItem): IModelVenda;
+begin
+  Result := Self;
+end;
+
+end.

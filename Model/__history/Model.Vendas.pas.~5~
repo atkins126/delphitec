@@ -1,0 +1,104 @@
+unit Model.Vendas;
+
+interface
+
+uses
+  Model.Interfaces,
+  View.ScreenControl.Principal,
+  Data.DB,
+  FireDAC.Comp.Client,
+  Model.ControleEstoque.SQL;
+
+type
+  TModelVendasSQL = class(TInterfacedObject, IModelVenda)
+  private
+    F_vendaId:Integer;
+    F_clienteId:Integer;
+    F_dataVenda:TDateTime;
+    F_totalVenda: Double;
+    Qry : TFDQuery;
+    function GetclienteId: Integer;
+    function GetdataVenda: TDateTime;
+    function GettotalVenda: Double;
+    function GetvendaId: Integer;
+    procedure SetclienteId(const Value: Integer);
+    procedure SetdataVenda(const Value: TDateTime);
+    procedure SettotalVenda(const Value: Double);
+    procedure SetvendaId(const Value: Integer);
+  public
+    constructor Create(aConexao: TCustomConnection);
+    destructor Destroy;
+    function Inserir(cds:TDataSet):Integer;
+    function Atualizar(cds:TDataSet):Boolean;
+    function Apagar: Boolean;
+    function Selecionar(id:Integer; var cds:TDataSet):Boolean;
+  published
+    property VendaId:Integer read GetvendaId    write SetvendaId;
+    property ClienteId:Integer   read GetclienteId  write SetclienteId;
+    property DataVenda:TDateTime read GetdataVenda  write SetdataVenda;
+    property TotalVenda:Double   read GettotalVenda write SettotalVenda;
+  end;
+
+implementation
+
+uses
+  Vcl.Dialogs, System.SysUtils;
+
+{$region 'Constructor and Destructor'}
+constructor TModelVendasSQL.Create(aConexao: TCustomConnection);
+begin
+
+end;
+
+destructor TModelVendasSQL.Destroy;
+begin
+
+  inherited;
+end;
+{$endRegion}
+
+{$region 'CRUD'}
+
+procedure TModelVendasSQL.SetclienteId(const Value: Integer);
+begin
+  F_clienteId := Value;
+end;
+
+procedure TModelVendasSQL.SetdataVenda(const Value: TDateTime);
+begin
+  F_dataVenda := Value;
+end;
+
+procedure TModelVendasSQL.SettotalVenda(const Value: Double);
+begin
+  F_totalVenda := Value;
+end;
+
+procedure TModelVendasSQL.SetvendaId(const Value: Integer);
+begin
+  F_vendaId := Value;
+end;
+
+function TModelVendasSQL.GetclienteId: Integer;
+begin
+  Result := F_clienteId;
+end;
+
+function TModelVendasSQL.GetdataVenda: TDateTime;
+begin
+  Result := F_dataVenda;
+end;
+
+function TModelVendasSQL.GettotalVenda: Double;
+begin
+  Result := F_totalVenda;
+end;
+
+function TModelVendasSQL.GetvendaId: Integer;
+begin
+  Result := F_vendaId;
+end;
+
+{$endregion}
+
+end.

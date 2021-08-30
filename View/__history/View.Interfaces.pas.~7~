@@ -1,0 +1,9 @@
+unit View.Interfaces;
+
+interface
+
+uses
+
+implementation
+
+end.

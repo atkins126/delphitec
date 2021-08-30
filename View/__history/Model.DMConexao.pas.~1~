@@ -1,0 +1,90 @@
+unit DMConexao;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.MySQL,
+  FireDAC.Phys.MySQLDef, FireDAC.VCLUI.Wait, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Comp.UI, Vcl.Dialogs, IniFiles;
+
+type
+  TfmDM = class(TDataModule)
+    Connection: TFDConnection;
+    DriverLink: TFDPhysMySQLDriverLink;
+    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  fmDM: TfmDM;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+//class function TfmDM.ConfigureDB: Boolean;
+//var
+//  Caminho,
+//  CaminhoDB,
+//  BibliotecaMysql: string;
+//begin
+//  Caminho := ExtractFilePath(ParamStr(0));
+//  BibliotecaMysql := Caminho + 'libmysql.dll';
+//  if FileExists(CaminhoDB) then
+//  begin
+//    try
+//      fmDM.Connection.Close;
+////      fmDM.Connection.Params.Database := CaminhoDB;
+//      fmDM.DriverLink.VendorHome := ExtractFilePath(BibliotecaMysql);
+//      fmDM.DriverLink.VendorLib := ExtractFileName(BibliotecaMysql);
+//      fmDM.Connection.Open;
+//      Result := True;
+//    except
+//      on E: Exception do
+//        raise Exception.Create('It was not possible connecting with database: ' + E.Message);
+//    end;
+//  end
+//  else
+//    raise Exception.Create('It was not possible locate the database');
+//end;
+
+procedure TfmDM.DataModuleCreate(Sender: TObject);
+var
+  Arquivo: TIniFile;
+  Caminho,
+  BibliotecaMysql: string;
+begin
+  Caminho := ExtractFilePath(ParamStr(0));
+  BibliotecaMysql := Caminho + 'libmysql.dll';
+//  fmDM.DriverLink.VendorHome := ExtractFilePath(BibliotecaMysql);
+  fmDM.DriverLink.VendorLib := ExtractFileName(BibliotecaMysql);
+  Arquivo := TIniFile.Create(Caminho + 'db.ini');
+  try
+    try
+      Connection.Connected := False;
+
+      Connection.Params.Values['Server'] := Arquivo.ReadString('PROJ', 'Server', 'localhost');
+      Connection.Params.Values['Database'] := Arquivo.ReadString('PROJ', 'Database', 'delphitec');
+      Connection.Params.Values['Username'] := Arquivo.ReadString('PROJ', 'Username', 'root');
+      Connection.Params.Values['Password'] := Arquivo.ReadString('PROJ', 'Password', 'root');
+      Connection.Params.Values['Port'] := Arquivo.ReadString('PROJ', 'Port', '3306');
+
+      Connection.Connected := True;
+    except
+      on E: Exception do
+        ShowMessage('Erro ao se conectar ao banco de dados! Detalhes: '+e.Message);
+    end;
+  finally
+    FreeAndNil(Arquivo);
+  end;
+end;
+
+end.

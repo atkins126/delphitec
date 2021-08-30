@@ -1,0 +1,16 @@
+unit Model.Conexao.Interfaces;
+
+interface
+
+uses
+  Data.DB;
+
+type
+  iModelConexao = interface
+    ['{55226189-9F26-4AFA-946B-D2627C6D33DC}']
+    function Connection : TCustomConnection;
+  end;
+
+implementation
+
+end.

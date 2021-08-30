@@ -1,0 +1,151 @@
+unit DAO.Classes;
+
+interface
+
+uses
+  System.Sysutils, Data.DB, System.Classes, FireDAC.Comp.Client, Model.Conexao.Interfaces;
+
+type
+  TModelConexao = class(TInterfacedObject, IModelConexao)
+  public
+    function AbreTabela(const ASQL: String; var ATabela: TFDQuery): Boolean; overload;
+    function AbreTabela(const ASQL: String; AArgs: Array of const; var ATabela: TFDQuery): Boolean; overload;
+    function AbreTabela(const ASQL: String; AArgs: Array of const): TFDQuery; overload;
+    function AbreTabela(const ASQL: String): TFDQuery; overload;
+    procedure ExecutarSQL(const ASQL: String); overload;
+    procedure ExecutarSQL(const ASQL: String; AArgs: Array of const); overload;
+    function ConsultarString(const ASQL: String; AArgs: Array of const): String;
+    function ConsultarInteiro(const ASQL: String; AArgs: Array of const): Integer;
+    function ConsultarExtended(const ASQL: String; AArgs: Array of const): Extended;
+  end;
+
+implementation
+
+uses
+  DMConexao;
+
+{ TModelConexao }
+
+function TModelConexao.AbreTabela(const ASQL: String; var ATabela: TFDQuery): Boolean; overload;
+begin
+  try
+    if not Assigned(ATabela.Connection) then
+      ATabela.Connection := fmDM.Connection;
+    ATabela.Close;
+    ATabela.SQL.Clear;
+    ATabela.SQL.Text := ASQL;
+    ATabela.Open;
+    Result := ATabela.RecordCount > 0;
+  except
+    raise Exception.Create('Não foi possível realizar a consulta');
+  end;
+end;
+
+function TModelConexao.AbreTabela(const ASQL: String; AArgs: Array of const; var ATabela: TFDQuery): Boolean;
+begin
+  Result := AbreTabela(Format(ASQL, AArgs), ATabela);
+end;
+
+function TModelConexao.AbreTabela(const ASQL: String): TFDQuery;
+begin
+  Result := AbreTabela(ASQL, []);
+end;
+
+function TModelConexao.AbreTabela(const ASQL: String; AArgs: Array of const): TFDQuery;
+begin
+  Result := TFDQuery.Create(nil);
+  if Assigned(Result) then
+    AbreTabela(ASQL, AArgs, Result);
+end;
+
+function TModelConexao.ConsultarString(const ASQL: String; AArgs: Array of const): string;
+var
+  ATabela: TFDQuery;
+begin
+  Result := '';
+  ATabela := TFDQuery.Create(nil);
+  ATabela.Connection := fmDM.Connection;
+  try
+    try
+      ATabela.SQL.Clear;
+      ATabela.SQL.Text := Format(ASQL, AArgs);
+      ATabela.Open;
+      if ATabela.RecordCount > 0 then
+        Result := ATabela.Fields[0].AsString;
+    except
+      raise Exception.Create('Não foi possível realizar a consulta');
+    end;
+  finally
+    FreeAndNil(ATabela);
+  end;
+end;
+
+function TModelConexao.ConsultarInteiro(const ASQL: String; AArgs: Array of const): Integer;
+var
+  ATabela: TFDQuery;
+begin
+  Result := -1;
+  ATabela := TFDQuery.Create(nil);
+  ATabela.Connection := fmDM.Connection;
+  try
+    try
+      ATabela.SQL.Clear;
+      ATabela.SQL.Text := Format(ASQL, AArgs);
+      ATabela.Open;
+      if ATabela.RecordCount > 0 then
+        Result := ATabela.Fields[0].AsInteger;
+    except
+      raise Exception.Create('Não foi possível realizar a consulta');
+    end;
+  finally
+    FreeAndNil(ATabela);
+  end;
+end;
+
+function TModelConexao.ConsultarExtended(const ASQL: String; AArgs: Array of const): Extended;
+var
+  ATabela: TFDQuery;
+begin
+  Result := -1;
+  ATabela := TFDQuery.Create(nil);
+  ATabela.Connection := fmDM.Connection;
+  try
+    try
+      ATabela.SQL.Clear;
+      ATabela.SQL.Text := Format(ASQL, AArgs);
+      ATabela.Open;
+      if ATabela.RecordCount > 0 then
+        Result := ATabela.Fields[0].AsExtended;
+    except
+      raise Exception.Create('Não foi possível realizar a consulta');
+    end;
+  finally
+    FreeAndNil(ATabela);
+  end;
+end;
+
+procedure TModelConexao.ExecutarSQL(const ASQL: String);
+begin
+  ExecutarSQL(ASQL, []);
+end;
+
+procedure TModelConexao.ExecutarSQL(const ASQL: String; AArgs: Array of const);
+var
+  ATabela: TFDQuery;
+begin
+  ATabela := TFDQuery.Create(nil);
+  ATabela.Connection := fmDM.Connection;
+  try
+    try
+      ATabela.SQL.Clear;
+      ATabela.SQL.Text := Format(ASQL, AArgs);
+      ATabela.ExecSQL;
+    except
+      on E: Exception do raise Exception.CreateFmt('Não foi possível executar ação. Detalhes: %s', [E.Message]);
+    end;
+  finally
+    FreeAndNil(ATabela);
+  end;
+end;
+
+end.

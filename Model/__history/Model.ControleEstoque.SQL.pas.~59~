@@ -1,0 +1,49 @@
+unit Model.ControleEstoque.SQL;
+
+interface
+
+uses
+  Data.DB, DAO.Interfaces, FireDAC.Comp.Client, Model.Interfaces;
+
+type
+  TModelControleEstoque = class(TInterfacedObject, IModelEstoque)
+   private
+    F_produtoId: Integer;
+    F_produtoQuantidade: Integer;
+    function GetProdutoId: Integer;
+    function GetProdutoQuantidade: Integer;
+    procedure SetProdutoId(const Value: Integer);
+    procedure SetProdutoQuantidade(const Value: Integer);
+  published
+    property produtoId: Integer read F_produtoId write F_produtoId;
+    property produtoQuantidade: Double read F_produtoQuantidade write F_produtoQuantidade;
+  end;
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ TModelControleEstoque }
+
+function TModelControleEstoque.GetProdutoId: Integer;
+begin
+  Result := F_produtoId;
+end;
+
+function TModelControleEstoque.GetProdutoQuantidade: Integer;
+begin
+  Result := F_produtoQuantidade;
+end;
+
+procedure TModelControleEstoque.SetProdutoId(const Value: Integer);
+begin
+  Value := F_produtoId;
+end;
+
+procedure TModelControleEstoque.SetProdutoQuantidade(const Value: Integer);
+begin
+  Value := F_produtoQuantidade;
+end;
+
+end.

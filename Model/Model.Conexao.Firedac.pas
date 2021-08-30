@@ -1,0 +1,45 @@
+unit Model.Conexao.Firedac;
+
+interface
+
+uses
+  Model.Conexao.Interfaces, Data.DB, FireDAC.Comp.Client;
+type
+    TModelConexaoFiredac = class (TInterfacedObject, iModelConexao)
+    private
+        FConexao : TFDConnection;
+    public
+       constructor Create;
+       destructor Destroy; override;
+       class function New : iModelConexao;
+       function Connection : TCustomConnection;
+    end;
+
+implementation
+
+{ TModelConexaoFiredac }
+
+function TModelConexaoFiredac.Connection: TCustomConnection;
+begin
+    Result := FConexao;
+end;
+
+constructor TModelConexaoFiredac.Create;
+begin
+    FConexao := TFDConnection.Create(nil);
+    FConexao.Params.DriverID := 'MySQL';
+    FConexao.Params.Database := '..\..\Database\database.db3';
+    FConexao.Connected := True;
+end;
+
+destructor TModelConexaoFiredac.Destroy;
+begin
+    FConexao.DisposeOf;
+    inherited;
+end;
+
+class function TModelConexaoFiredac.New: iModelConexao;
+begin
+    Result := Self.Create
+end;
+end.

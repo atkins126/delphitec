@@ -1,0 +1,42 @@
+unit Model.Venda;
+
+interface
+uses
+  Model.Interfaces, Controller.Interfaces;
+
+Type
+  TModelVenda = class(TInterfacedObject, IModelVenda)
+    private
+      FItem : IControllerItem;
+      FModel : iModelVenda;
+    public
+      constructor Create;
+      class function New : IModelVenda;
+      function Item : IModelItem;
+
+  end;
+
+implementation
+
+uses
+  Model.Itens;
+
+{ TModelVenda }
+
+constructor TModelVenda.Create;
+begin
+  FModel := TModelVenda.New;
+  FItem := TModelItens.New(Self);
+end;
+
+function TModelVenda.Item: IModelItem;
+begin
+  Result := FItem;
+end;
+
+class function TModelVenda.New: IModelVenda;
+begin
+  Result := Self.Create;
+end;
+
+end.

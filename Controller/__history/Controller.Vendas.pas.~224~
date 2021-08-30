@@ -1,0 +1,415 @@
+unit Controller.Vendas;
+
+interface
+
+uses
+  System.Sysutils, Controller.Interfaces, Data.DB, View.ScreenControl.Principal,
+  DAO.Interfaces, FireDAC.Comp.Client, Vcl.Dialogs, Model.Interfaces, Model.Vendas,
+  Controller.Estoque, Datasnap.DBClient, Model.ControleEstoque.SQL;
+
+type
+
+  TControllerVenda = class(TInterfacedObject, IControllerVenda)
+  private
+    FConexao: IConexao;
+    FControllerEstoque: IControllerEstoque;
+  public
+    procedure AfterConstruction; override;
+    function EsteItemExiste(vendaId, produtoId: Integer): Boolean;
+    function AtualizarItem(cds: TClientDataSet; AVendaID: Integer): Boolean;
+    function ApagaItens(cds:TClientDataSet; AVendaID: Integer): Boolean;
+    function InserirItens(cds: TClientDataSet; IdVenda: Integer): Boolean;
+    procedure RetornarEstoque(sCodigo: String; Acao: TAcaoExcluirEstoque);
+    procedure BaixarEstoque(produtoId:Integer; Quantidade: Double);
+    function VarreduraDataSet(cds: TClientDataSet): String;
+  public
+    function Inserir(AVenda: IModelVenda; cds: TClientDataSet):Integer;
+    function Atualizar(AVenda: IModelVenda; cds: TClientDataSet): IModelVenda;
+    function Apagar(id:Integer): Boolean;
+    function Selecionar(id:Integer; var cds:TClientDataSet): IModelVenda;
+  end;
+
+implementation
+
+procedure TControllerVenda.AfterConstruction;
+begin
+  inherited;
+  FConexao := CreateConnection;
+  FControllerEstoque := TControllerEstoque.Create;
+end;
+
+function TControllerVenda.Apagar(id:Integer): Boolean;
+var
+  VendaDS: TFDQuery;
+begin
+  Result := False;
+  VendaDS := TFDQuery.Create(nil);
+  try
+    Result := True;
+    FConexao.ConfiguraTabela(VendaDS);
+    FConexao.StartTransaction;
+    VendaDS.SQL.Clear;
+    //Apaga os Itens Primeiro
+    VendaDS.SQL.Add('DELETE FROM vendasItens '+
+                ' WHERE vendaId=:vendaId ');
+    VendaDS.ParamByName('vendaId').AsInteger := id;
+    Try
+      VendaDS.ExecSQL;
+      //Apaga a Tabela Master
+      VendaDS.SQL.Clear;
+      VendaDS.SQL.Add('DELETE FROM vendas '+
+                  ' WHERE vendaId=:vendaId ');
+      VendaDS.ParamByName('vendaId').AsInteger := id;
+      VendaDS.ExecSQL;
+      FConexao.Commit;
+    Except
+      Result := False;
+      FConexao.Rollback;
+    End;
+  finally
+    FreeAndNil(VendaDS);
+  end;
+end;
+
+function TControllerVenda.VarreduraDataSet(cds:TClientDataSet):String;
+var
+  sNaoEsta:String;
+begin
+  sNaoEsta:=EmptyStr;
+  cds.First;
+  while not cds.Eof do begin
+    if sNaoEsta=EmptyStr then
+       sNaoEsta := cds.FieldByName('produtoId').AsString
+    else
+       sNaoEsta := sNaoEsta +','+cds.FieldByName('produtoId').AsString;
+
+    cds.Next;
+  end;
+  Result := sNaoEsta;
+end;
+
+function TControllerVenda.Atualizar(AVenda: IModelVenda; cds: TClientDataSet): IModelVenda;
+var
+  VendasDS: TFDQuery;
+begin
+  VendasDS := TFDQuery.Create(nil);
+  try
+    FConexao.ConfiguraTabela(VendasDS);
+    FConexao.StartTransaction;
+    VendasDS.SQL.Add('UPDATE vendas '+
+                '   SET clienteId=:clienteId '+
+                '      ,dataVenda=:dataVenda '+
+                '      ,totalVenda=:totalVenda '+
+                ' WHERE vendaId=:vendaId ');
+    VendasDS.ParamByName('vendaId').AsInteger    := AVenda.vendaId;
+    VendasDS.ParamByName('clienteId').AsInteger  := AVenda.clienteId;
+    VendasDS.ParamByName('dataVenda').AsDateTime := AVenda.dataVenda;
+    VendasDS.ParamByName('totalVenda').AsFloat   := AVenda.totalVenda;
+
+    Try
+      //Update
+      VendasDS.ExecSQL;
+
+      //Apagar Itens no banco que foram apagados na tela
+      ApagaItens(cds, AVenda.VendaId);
+
+      cds.First;
+      while not cds.Eof do begin
+        if EsteItemExiste(AVenda.vendaId, cds.FieldByName('produtoId').AsInteger) then
+          AtualizarItem(cds, AVenda.vendaId)
+        else
+          InserirItens(cds, AVenda.vendaId);
+
+        cds.Next;
+      end;
+      FConexao.Commit;
+    Except
+      FConexao.Rollback;
+    End;
+
+  finally
+       FreeAndNil(VendasDS);
+  end;
+end;
+
+function TControllerVenda.AtualizarItem(cds: TClientDataSet; AVendaID: Integer): Boolean;
+var
+  ProdutoDS: TFDQuery;
+begin
+  ProdutoDS := TFDQuery.Create(nil);
+  try
+    FConexao.ConfiguraTabela(ProdutoDS);
+    RetornarEstoque(cds.FieldByName('produtoId').AsString, aeeAlterar);
+
+    ProdutoDS.SQL.Clear;
+    ProdutoDS.SQL.Add('UPDATE VendasItens '+
+                '   SET itensValorUnitario=:itensValorUnitario '+
+                '      ,itensQuantidade=:itensQuantidade '+
+                '      ,itensTotalProduto=:itensTotalProduto '+
+                ' WHERE vendaId=:vendaId AND produtoId=:produtoId ');
+    ProdutoDS.ParamByName('vendaId').AsInteger    := AVendaID;
+    ProdutoDS.ParamByName('produtoId').AsInteger  := cds.FieldByName('produtoId').AsInteger;
+    ProdutoDS.ParamByName('itensValorUnitario').AsFloat:= cds.FieldByName('produtoValorUnitario').AsFloat;
+    ProdutoDS.ParamByName('itensQuantidade').AsFloat   := cds.FieldByName('produtoQuantidade').AsFloat;
+    ProdutoDS.ParamByName('itensTotalProduto').AsFloat := cds.FieldByName('produtoValorTotal').AsFloat;
+
+    Try
+      ProdutoDS.ExecSQL;
+      BaixarEstoque(cds.FieldByName('produtoId').AsInteger, cds.FieldByName('produtoQuantidade').AsFloat);
+    Except
+      Result:=false;
+    End;
+
+  finally
+       FreeAndNil(ProdutoDS);
+  end;
+end;
+
+procedure TControllerVenda.RetornarEstoque(sCodigo:String; Acao:TAcaoExcluirEstoque);
+var
+  FModelEstoque: IModelEstoque;
+  VendaDS: TFDQuery;
+begin
+  VendaDS := TFDQuery.Create(nil);
+
+  FConexao.ConfiguraTabela(VendaDS);
+  VendaDS.SQL.Clear;
+  VendaDS.SQL.Add(   ' SELECT produtoId, produtoQuantidade '+
+                 '   FROM VendasItens '+
+                 '  WHERE VendaId=:vendaId ');
+  if Acao = aeeApagar then
+     VendaDS.SQL.Add('  AND produtoId NOT IN ('+sCodigo+') ')
+  else
+     VendaDS.SQL.Add('  AND produtoId = ('+sCodigo+') ');
+
+  VendaDS.ParamByName('vendaId').AsInteger := FModelVenda.VendaId;
+
+  VendaDS.Open;
+  VendaDS.First;
+  while not VendaDS.Eof do
+  begin
+    FModelEstoque := TModelControleEstoque.Create;
+    FModelEstoque.ProdutoId  := VendaDS.FieldByName('produtoId').AsInteger;
+    FModelEstoque.produtoQuantidade := VendaDS.FieldByName('produtoQuantidade').AsFloat;
+    FControllerEstoque.RetornarEstoque(FModelEstoque);
+    VendaDS.Next;
+  end;
+end;
+
+procedure TControllerVenda.BaixarEstoque(produtoId:Integer; Quantidade:Double);
+var
+  FModelEstoque: IModelEstoque;
+begin
+  FModelEstoque := TModelControleEstoque.Create;
+  FModelEstoque.ProdutoId  := produtoId;
+  FModelEstoque.produtoQuantidade := Quantidade;
+  FControllerEstoque.BaixarEstoque(FModelEstoque);
+end;
+
+function TControllerVenda.ApagaItens(cds:TClientDataSet; AVendaID: Integer): Boolean;
+var
+  sCodNoCds: String;
+  ProdutoDS: TFDQuery;
+begin
+  Result := False;
+  ProdutoDS := TFDQuery.Create(nil);
+  try
+    Result := True;
+    FConexao.ConfiguraTabela(ProdutoDS);
+    //Pega os codigos que estão no Cliente para Selecionar o In Not no Banco de Dados
+    sCodNoCds := VarreduraDataset(cds);
+    //Retorna ao Estoque
+    RetornarEstoque(sCodNoCds, aeeApagar);
+
+    ProdutoDS.SQL.Clear;
+    ProdutoDS.SQL.Add(' DELETE '+
+                      '   FROM VendasItens '+
+                      '  WHERE VendaId=:VendaId '+
+                      '    AND produtoId NOT IN ('+sCodNoCds+') ');
+    ProdutoDS.ParamByName('vendaId').AsInteger := AVendaID;
+
+    Try
+      ProdutoDS.ExecSQL;
+    Except
+      Result := False;
+    End;
+
+  finally
+       FreeAndNil(ProdutoDS);
+  end;
+end;
+
+function TControllerVenda.Inserir(AVenda: IModelVenda; cds:TClientDataSet): Integer;
+var
+  IdVendaGerado: Integer;
+  VendasDS: TFDQuery;
+begin
+  VendasDS := TFDQuery.Create(nil);
+  try
+    //start transaction;
+    FConexao.ConfiguraTabela(VendasDS); //define o connection
+    FConexao.StartTransaction;
+
+    //Faz a Inclusão no Banco de Dados
+    VendasDS.SQL.Clear;
+    VendasDS.SQL.Add('INSERT INTO vendas (clienteId, dataVenda, totalVenda)  '+
+                '            VALUES (:clienteId, :dataVenda, :totalVenda )');
+    VendasDS.ParamByName('clienteId').AsInteger  := AVenda.clienteId;
+    VendasDS.ParamByName('dataVenda').AsDateTime := AVenda.dataVenda;
+    VendasDS.ParamByName('totalVenda').AsFloat   := AVenda.totalVenda;
+    Try
+      VendasDS.ExecSQL;
+      //Recupera o ID Gerado no Insert
+      VendasDS.SQL.Clear;
+      VendasDS.SQL.Add('SELECT LAST_INSERT_ID() AS ID');
+      VendasDS.Open;
+
+      //Id da tabela Master (Venda)
+      IdVendaGerado := VendasDS.FieldByName('ID').AsInteger;
+
+      {$region 'Gravar na tabela VendasItens'}
+      cds.First;
+      while not cds.Eof do begin
+        InserirItens(cds, IdVendaGerado);
+        cds.Next;
+      end;
+      {$endRegion}
+
+      //commit transaction
+      FConexao.Commit;
+      Result := IdVendaGerado;
+    Except
+      //rollback transacation
+      FConexao.Rollback;
+      Result:=-1;
+    End;
+
+  finally
+    FreeAndNil(VendasDS);
+  end;
+end;
+
+function TControllerVenda.InserirItens(cds:TClientDataSet; IdVenda:Integer):Boolean;
+var
+  VendasDS: TFDQuery;
+begin
+  VendasDS := TFDQuery.Create(nil);
+  try
+    Result := True;
+    FConexao.ConfiguraTabela(VendasDS);
+    VendasDS.SQL.Clear;
+    VendasDS.SQL.Add('INSERT INTO VendasItens ( VendaID, ProdutoID, itensValorUnitario, itensQuantidade, itensTotalProduto) '+
+                '                 VALUES (:VendaID,:ProdutoID,:itensValorUnitario,:itensQuantidade,:itensTotalProduto) ');
+
+    VendasDS.ParamByName('VendaID').AsInteger    := IdVenda;
+    VendasDS.ParamByName('ProdutoID').AsInteger  := cds.FieldByName('produtoId').AsInteger;
+    VendasDS.ParamByName('itensValorUnitario').AsFloat:= cds.FieldByName('produtoValorUnitario').AsFloat;
+    VendasDS.ParamByName('itensQuantidade').AsInteger   := cds.FieldByName('produtoQuantidade').AsInteger;
+    VendasDS.ParamByName('itensTotalProduto').AsFloat := cds.FieldByName('produtoValorTotal').AsFloat;
+    try
+      VendasDS.ExecSQL;
+      BaixarEstoque(cds.FieldByName('produtoId').AsInteger, cds.FieldByName('produtoQuantidade').AsFloat);
+    Except
+      Result := False;
+    End;
+
+  finally
+    FreeAndNil(VendasDS);
+  end;
+end;
+
+function TControllerVenda.Selecionar(id: Integer; var cds: TClientDataSet): IModelVenda;
+var
+  VendasDS: TFDQuery;
+begin
+  Result := nil;
+  VendasDS := TFDQuery.Create(nil);
+  try
+    Result := nil;
+
+    if FConexao.AbreTabela(
+      'SELECT vendaId '+
+      '      ,clienteId '+
+      '      ,dataVenda '+
+      '      ,totalVenda '+
+      '  FROM vendas '+
+      ' WHERE vendaId=' + id.Tostring, VendasDS) then
+    begin
+      Result := TModelVendas.Create;
+      Try
+        Result.vendaId    := VendasDS.FieldByName('vendaId').AsInteger;
+        Result.clienteId  := VendasDS.FieldByName('clienteId').AsInteger;
+        Result.dataVenda  := VendasDS.FieldByName('dataVenda').AsDateTime;
+        Result.totalVenda := VendasDS.FieldByName('totalVenda').AsFloat;
+
+        //Apaga o ClientDataSet Caso esteja com Registro
+        cds.EmptyDataSet;
+        //Seleciona os Itens do Banco de dados com a propriedade F_VendaId
+        VendasDS.Close;
+        VendasDS.SQL.Clear;
+        VendasDS.SQL.Text :=
+          'SELECT ' +
+            'VendasItens.produtoId, ' +
+            'Produtos.produtoNome, ' +
+            'VendasItens.itensValorUnitario, ' +
+            'VendasItens.itensQuantidade, ' +
+            'VendasItens.itensTotalProduto ' +
+          'FROM ' +
+            'VendasItens ' +
+            'INNER JOIN produtos On Produtos.produtoId = VendasItens.produtoId ' +
+          'WHERE VendasItens.VendaID=:VendaID ';
+        VendasDS.ParamByName('VendaID').AsInteger    := id;
+        VendasDS.Open;
+
+        //Pega da Query e Coloca no ClientDataSet
+        VendasDS.First;
+        while not VendasDS.Eof do begin
+          cds.Append;
+          cds.FieldByName('produtoId').AsInteger       := VendasDS.FieldByName('produtoId').AsInteger;
+          cds.FieldByName('produtoNome').AsString      := VendasDS.FieldByName('produtoNome').AsString;
+          cds.FieldByName('produtoValorUnitario').AsFloat     := VendasDS.FieldByName('itensValorUnitario').AsFloat;
+          cds.FieldByName('produtoQuantidade').AsFloat        := VendasDS.FieldByName('itensQuantidade').AsFloat;
+          cds.FieldByName('produtoValorTotal').AsFloat := VendasDS.FieldByName('itensTotalProduto').AsFloat;
+          cds.Post;
+
+          VendasDS.Next;
+        end;
+
+        cds.First;
+      Except
+        Result := nil;
+      End;
+    end;
+
+  finally
+    if Assigned(VendasDS) then
+       FreeAndNil(VendasDS);
+  end;
+end;
+
+function TControllerVenda.EsteItemExiste(vendaId: Integer; produtoId:Integer): Boolean;
+var
+  ItemExisteDS: TFDQuery;
+begin
+  try
+    FConexao.ConfiguraTabela(ItemExisteDS);
+    ItemExisteDS.SQL.Clear;
+    ItemExisteDS.SQL.Add('SELECT Count(vendaId) AS Qtde '+
+                '  FROM VendasItens '+
+                ' WHERE vendaId=:vendaId and produtoId=:produtoId ');
+    ItemExisteDS.ParamByName('vendaId').AsInteger   :=vendaId;
+    ItemExisteDS.ParamByName('produtoId').AsInteger :=produtoId;
+    Try
+      ItemExisteDS.Open;
+
+      Result := ItemExisteDS.FieldByName('Qtde').AsInteger > 0;
+      {$endRegion}
+    Except
+      Result := false;
+    End;
+  finally
+    FreeAndNil(ItemExisteDS);
+  end;
+end;
+
+end.

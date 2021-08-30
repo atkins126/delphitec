@@ -1,0 +1,52 @@
+unit Controller.Observer.Item;
+
+interface
+
+uses
+  Controller.Observer.Interfaces, System.Generics.Collections, System.Sysutils;
+
+type
+  TControllerObserverItem = class(TInterfacedObject, ISubjectItem)
+    private
+      FList : TList<IObserverItem>;
+    public
+      constructor Create;
+      class function New : ISubjectItem;
+  end;
+
+implementation
+
+{ TControllerVenda }
+
+constructor TControllerObserverItem.Create(Parent : IControllerVenda);
+begin
+  FParent := Parent;
+end;
+
+class function TControllerObserverItem.New(Parent : IControllerVenda) : ISubjectItem;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TControllerObserverItem.Codigo(Value: Integer): ISubjectItem;
+begin
+  Result := Self;
+  FCodigo := Value;
+end;
+
+function TControllerObserverItem.Vender: ISubjectItem;
+begin
+  Result := Self;
+end;
+
+function TControllerObserverItem.&End: IControllerVenda;
+begin
+  Result := FParent;
+  FParent
+    .Model
+      .Item
+      .Codigo(FCodigo)
+      .Vender;
+end;
+
+end.

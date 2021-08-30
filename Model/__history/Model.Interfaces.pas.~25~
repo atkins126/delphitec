@@ -1,0 +1,59 @@
+unit Model.Interfaces;
+
+interface
+
+uses
+  Data.DB, View.ScreenControl.Principal;
+
+type
+  IModelProduto = interface
+    ['{8CDFD854-E975-4652-A2EE-21EF720F1A43}']
+    function GetcategoriaId: Integer;
+    function GetprodutoDescricao: string;
+    function GetprodutoId: Integer;
+    function GetprodutoNome: string;
+    function GetprodutoQuantidade: Integer;
+    function GetprodutoValor: Double;
+    procedure SetcategoriaId(const Value: Integer);
+    procedure SetprodutoDescricao(const Value: string);
+    procedure SetprodutoId(const Value: Integer);
+    procedure SetprodutoNome(const Value: string);
+    procedure SetprodutoQuantidade(const Value: Integer);
+    procedure SetprodutoValor(const Value: Double);
+    property produtoId        :Integer    read GetprodutoId      write SetprodutoId;
+    property produtoNome      :string     read GetprodutoNome           write SetprodutoNome;
+    property produtoDescricao :string     read GetprodutoDescricao      write SetprodutoDescricao;
+    property produtoValor     :Double     read GetprodutoValor          write SetprodutoValor;
+    property produtoQuantidade:Integer     read GetprodutoQuantidade     write SetprodutoQuantidade;
+    property categoriaId      :Integer    read GetcategoriaId    write SetcategoriaId;
+  end;
+
+  IModelVenda = interface
+  ['{0F5BEC68-872C-494A-8BD8-738199402D0F}']
+    function GetclienteId: Integer;
+    function GetdataVenda: TDateTime;
+    function GettotalVenda: Double;
+    function GetvendaId: Integer;
+    procedure SetclienteId(const Value: Integer);
+    procedure SetdataVenda(const Value: TDateTime);
+    procedure SettotalVenda(const Value: Double);
+    procedure SetvendaId(const Value: Integer);
+    property VendaId: Integer read GetvendaId    write SetvendaId;
+    property ClienteId: Integer   read GetclienteId  write SetclienteId;
+    property DataVenda: TDateTime read GetdataVenda  write SetdataVenda;
+    property TotalVenda: Double   read GettotalVenda write SettotalVenda;
+  end;
+
+  IModelEstoque = interface
+    ['{7A03B6A3-2BBA-46C5-9F28-682B6D63AAB1}']
+    function GetProdutoId: Integer;
+    function GetProdutoQuantidade: Integer;
+    procedure SetProdutoId(const Value: Integer);
+    procedure SetProdutoQuantidade(const Value: Integer);
+    property produtoId: Integer read GetProdutoId write SetProdutoId;
+    property produtoQuantidade: Integer read GetProdutoQuantidade write SetProdutoQuantidade;
+  end;
+
+implementation
+
+end.

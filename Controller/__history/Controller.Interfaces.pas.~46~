@@ -1,0 +1,38 @@
+unit Controller.Interfaces;
+
+interface
+
+uses
+  System.Generics.Collections, System.Sysutils, Model.Interfaces, Model.Produto,
+  Model.Vendas, Data.DB, View.ScreenControl.Principal, Datasnap.DBClient;
+
+type
+  IControllerProduto = interface
+    ['{C2C5DA5E-ED95-44EC-8BDF-6697BB6158E8}']
+    function Selecionar(AId: Integer): IModelProduto;
+  end;
+
+  IControllerVenda = interface
+    ['{3EADE007-DFFD-480F-835D-C978A7D347CB}']
+    function EsteItemExiste(vendaId, produtoId: Integer): Boolean;
+    function AtualizarItem(cds: TClientDataSet; AVendaID: Integer): Boolean;
+    function ApagaItens(cds:TClientDataSet; AVendaID: Integer): Boolean;
+    function InserirItens(cds: TClientDataSet; IdVenda: Integer): Boolean;
+    procedure RetornarEstoque(sCodigo: String; Acao: TAcaoExcluirEstoque);
+    procedure BaixarEstoque(produtoId:Integer; Quantidade:Double);
+    function VarreduraDataSet(cds: TClientDataSet): String;
+    function Inserir(AVenda: IModelVenda; cds: TClientDataSet):Integer;
+    function Atualizar(AVenda: IModelVenda; cds: TClientDataSet): IModelVenda;
+    function Apagar(id:Integer): Boolean;
+    function Selecionar(id:Integer; var cds: TClientDataSet): IModelVenda;
+  end;
+
+  IControllerEstoque = interface
+    ['{617ABE99-1807-43BB-BDE3-4B6CCD888A35}']
+    function BaixarEstoque(AEstoque: IModelEstoque): IModelEstoque;
+    function RetornarEstoque(AEstoque: IModelEstoque): IModelEstoque;
+  end;
+
+implementation
+
+end.

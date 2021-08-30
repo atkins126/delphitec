@@ -1,0 +1,7 @@
+unit Controller.Observer.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,51 @@
+unit Model.Itens;
+
+interface
+
+uses
+  Model.Interfaces;
+
+Type
+  TModelItens = class(TInterfacedObject, IModelItem)
+    private
+      FParent : iModelVenda;
+      FCodigo : Integer;
+    public
+      constructor Create(Parent : IModelVenda);
+      class function New(Parent : IModelVenda) : IModelItem;
+      function Codigo(Value : Integer) : IModelItem;
+      function Vender : IModelItem;
+      function &End : IModelVenda;
+  end;
+
+implementation
+
+{ TModelItens }
+
+function TModelItens.Codigo(Value: Integer): IModelItem;
+begin
+  Result := Self;
+  FCodigo := Value;
+end;
+
+constructor TModelItens.Create(Parent: IModelVenda);
+begin
+  FParent := Parent;
+end;
+
+function TModelItens.&End: IModelVenda;
+begin
+  Result := FParent;
+end;
+
+class function TModelItens.New(Parent: IModelVenda): IModelItem;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TModelItens.Vender: IModelItem;
+begin
+
+end;
+
+end.

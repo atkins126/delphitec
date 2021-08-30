@@ -1,0 +1,12 @@
+unit View.Interfaces;
+
+interface
+
+type
+  IViewControl = interface
+    ['{E0D32A60-094D-4C18-9D1D-0B1F8675CAF1}']
+  end;
+
+implementation
+
+end.

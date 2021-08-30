@@ -1,0 +1,20 @@
+unit Model.Conexao.Interfaces;
+
+interface
+
+uses
+  Data.DB, System.Classes;
+
+type
+  IModelConexao = interface
+    ['{A4C97BB4-1CE7-442C-9DAF-1D493567F689}']
+    procedure ExecutarSQL(const ASQL: String); overload;
+    procedure ExecutarSQL(const ASQL: String; AArgs: Array of const); overload;
+    function ConsultarString(const ASQL: String; AArgs: Array of const): String;
+    function ConsultarInteiro(const ASQL: String; AArgs: Array of const): Integer;
+    function ConsultarExtended(const ASQL: String; AArgs: Array of const): Extended;
+  end;
+
+implementation
+
+end.
