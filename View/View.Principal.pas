@@ -3,11 +3,28 @@ unit View.Principal;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Controller.Interfaces, Vcl.StdCtrls,
-  Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls,
-  Vcl.ComCtrls, Vcl.Buttons, Vcl.DBCtrls, Vcl.Imaging.pngimage, RxCurrEdit,
-  Vcl.Mask, RxToolEdit, View.ScreenControl.Principal, View.Processo.Vendas;
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Controller.Interfaces,
+  Vcl.StdCtrls,
+  Data.DB,
+  Vcl.Grids,
+  Vcl.DBGrids,
+  Vcl.ExtCtrls,
+  Vcl.ComCtrls,
+  Vcl.Buttons,
+  Vcl.DBCtrls,
+  Vcl.Imaging.pngimage,
+  Vcl.Mask,
+  View.ScreenControl.Principal,
+  View.Processo.Vendas;
 
 type
   TfrmPrincipal = class(TForm)

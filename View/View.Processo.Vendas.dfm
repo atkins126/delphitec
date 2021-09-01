@@ -964,8 +964,6 @@ object ViewProcessoVendas: TViewProcessoVendas
           Caption = 'Cadastro de Venda'
           ImageIndex = 1
           OnShow = tabCadastroShow
-          ExplicitLeft = 2
-          ExplicitTop = 26
           object Label3: TLabel
             Left = 554
             Top = 2
@@ -1354,14 +1352,13 @@ object ViewProcessoVendas: TViewProcessoVendas
                 Font.Style = [fsBold]
                 ParentFont = False
               end
-              object edtValorTotal: TCurrencyEdit
+              object edtValorTotal: TEdit
                 Left = 514
-                Top = 12
-                Width = 166
+                Top = 14
+                Width = 159
                 Height = 21
-                ParentColor = True
-                ReadOnly = True
                 TabOrder = 0
+                OnChange = edtTotalProdutoChange
               end
             end
             object grdItensVenda: TDBGrid
@@ -1392,7 +1389,7 @@ object ViewProcessoVendas: TViewProcessoVendas
             OnExit = edtQuantidadeExit
           end
           object edtTotalProduto: TEdit
-            Left = 428
+            Left = 420
             Top = 58
             Width = 98
             Height = 21

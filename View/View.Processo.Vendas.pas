@@ -24,9 +24,7 @@ uses
   Vcl.Buttons,
 
   Data.DB,
-  RxCurrEdit,
   Vcl.Mask,
-  RxToolEdit,
   Controller.Interfaces,
   DAO.Interfaces,
   Model.Vendas,
@@ -84,7 +82,6 @@ type
     pnlVenda: TPanel;
     pnlTotalizador: TPanel;
     Label2: TLabel;
-    edtValorTotal: TCurrencyEdit;
     grdItensVenda: TDBGrid;
     pnlBottom: TPanel;
     spbFecharTela: TSpeedButton;
@@ -106,6 +103,7 @@ type
     edtQuantidade: TEdit;
     edtTotalProduto: TEdit;
     edtDataVenda: TEdit;
+    edtValorTotal: TEdit;
     procedure edtQuantidadeExit(Sender: TObject);
     procedure grdItensVendaKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -342,7 +340,7 @@ begin
   tbItens.FieldByName('produtoValorUnitario').AsFloat := StrToFloat(edtValorUnitario.Text);
   tbItens.FieldByName('produtoValorTotal').AsFloat := StrToFloat(edtTotalProduto.Text);
   tbItens.Post;
-  edtValorTotal.Value := TotalizarVenda;
+  edtValorTotal.Text := FloatToStr(TotalizarVenda);
   LimparComponenteItem;
   lkpProduto.SetFocus;
 end;
@@ -480,7 +478,7 @@ begin
   tbItens.Delete;
   LimparComponenteItem;
 
-  edtValorTotal.Value := TotalizarVenda;
+  edtValorTotal.Text := FloatToStr(TotalizarVenda);
 end;
 
 procedure TViewProcessoVendas.spbSalvarClick(Sender: TObject);
@@ -620,7 +618,7 @@ begin
   tbItens.FieldByName('produtoValorUnitario').AsFloat := StrToFloat(edtValorUnitario.Text);
   tbItens.FieldByName('produtoValorTotal').AsFloat := StrToFloat(edtTotalProduto.Text);
   tbItens.Post;
-  edtValorTotal.Value:=TotalizarVenda;
+  edtValorTotal.Text := FloatToStr(TotalizarVenda);
   LimparComponenteItem;
   lkpProduto.SetFocus;
 end;
@@ -733,10 +731,6 @@ begin
       TDBLookupComboBox(Components[i]).KeyValue:=Null
     else if (Components[i] is TMemo) then
       TMemo(Components[i]).Text:=''
-    else if (Components[i] is TCurrencyEdit) then
-      TCurrencyEdit(Components[i]).Text:=''
-    else if (Components[i] is TDateEdit) then
-      TDateEdit(Components[i]).Date:=0
     else if (Components[i] is TMaskEdit) then
       TMaskEdit(Components[i]).Text:='';
 
