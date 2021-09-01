@@ -99,11 +99,11 @@ type
     dsClientes: TDataSource;
     tbProdutos: TFDQuery;
     dsProdutos: TDataSource;
-    edtValorUnitario: TEdit;
     edtQuantidade: TEdit;
     edtTotalProduto: TEdit;
     edtDataVenda: TEdit;
     edtValorTotal: TEdit;
+    edtValorUnitario: TEdit;
     procedure edtQuantidadeExit(Sender: TObject);
     procedure grdItensVendaKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -129,13 +129,13 @@ type
     procedure edtTotalProdutoChange(Sender: TObject);
     procedure edtValorUnitarioChange(Sender: TObject);
     procedure edtQuantidadeChange(Sender: TObject);
+    procedure edtValorUnitarioExit(Sender: TObject);
   private
     Operacao: TOperacao;
     FControllerVenda : IControllerVenda;
     FConexao : IConexao;
     IndiceAtual:string;
     SelectOriginal:String;
-    procedure ConfigurarTabs;
     procedure Editar(FOperacao : TOperacao);
     procedure Novo(Operacao: TOperacao);
     function Gravar(Operacao: TOperacao): Boolean;
@@ -160,6 +160,7 @@ type
     procedure ConfigurarCamposProdutos;
     procedure NomeiaTituloProdutosGrid;
     procedure mskPesquisaChange(Sender: TObject);
+    function TratarValor(AValor: String): Extended;
   public
   end;
 
@@ -171,13 +172,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Model.Produto;
-
-procedure TViewProcessoVendas.ConfigurarTabs;
-begin
-//  tabConsulta.TabVisible := False;
-//  tabCadastro.TabVisible := False;
-end;
+  Model.Produto, System.StrUtils;
 
 procedure TViewProcessoVendas.grdItensVendaDblClick(Sender: TObject);
 begin
@@ -232,7 +227,8 @@ end;
 
 procedure TViewProcessoVendas.edtQuantidadeExit(Sender: TObject);
 begin
-  edtTotalProduto.Text := FloatToStr(TotalizarProduto(StrToFloat(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
+  edtTotalProduto.Text := FormatFloat('#,##0.00',
+    TotalizarProduto(TratarValor(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
 end;
 
 procedure TViewProcessoVendas.edtTotalProdutoChange(Sender: TObject);
@@ -242,7 +238,13 @@ end;
 
 procedure TViewProcessoVendas.edtValorUnitarioChange(Sender: TObject);
 begin
-  //Formatar(edtValorUnitario, Valor);
+  Formatar(edtValorUnitario, Valor);
+end;
+
+procedure TViewProcessoVendas.edtValorUnitarioExit(Sender: TObject);
+begin
+  edtTotalProduto.Text := FormatFloat('#,##0.00', TotalizarProduto(TratarValor(edtValorUnitario.Text),
+    StrToFloat(edtQuantidade.Text)));
 end;
 
 procedure TViewProcessoVendas.ExibirLabelIndice(Campo: string; aLabel:TLabel);
@@ -271,7 +273,6 @@ end;
 
 procedure TViewProcessoVendas.FormShow(Sender: TObject);
 begin
-  ConfigurarTabs;
   ControlaIndiceTab(pgcVendas, 0);
   lblIndice.Caption := IndiceAtual;
   DesabilitarEditPK;
@@ -317,7 +318,7 @@ begin
     abort;
   end;
 
-  if edtValorUnitario.Text <= '0' then
+  if TratarValor(edtValorUnitario.Text) <= 0 then
   begin
     MessageDlg('Valor Unitário não pode ser Zero' ,mtInformation,[mbOK],0);
     edtValorUnitario.SetFocus;
@@ -331,14 +332,14 @@ begin
     abort;
   end;
 
-  edtTotalProduto.Text := FloatToStr(TotalizarProduto(StrToFloat(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
+  edtTotalProduto.Text := FormatFloat('#,##0.00', TotalizarProduto(TratarValor(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
 
   tbItens.Append;
   tbItens.FieldByName('produtoId').AsString := lkpProduto.KeyValue;
   tbItens.FieldByName('produtoNome').AsString := tbProdutos.FieldByName('produtoNome').AsString;
   tbItens.FieldByName('produtoQuantidade').AsFloat := StrToFloat(edtQuantidade.Text);
-  tbItens.FieldByName('produtoValorUnitario').AsFloat := StrToFloat(edtValorUnitario.Text);
-  tbItens.FieldByName('produtoValorTotal').AsFloat := StrToFloat(edtTotalProduto.Text);
+  tbItens.FieldByName('produtoValorUnitario').AsFloat := TratarValor(edtValorUnitario.Text);
+  tbItens.FieldByName('produtoValorTotal').AsFloat := TratarValor(edtTotalProduto.Text);
   tbItens.Post;
   edtValorTotal.Text := FloatToStr(TotalizarVenda);
   LimparComponenteItem;
@@ -585,38 +586,42 @@ end;
 
 procedure TViewProcessoVendas.AdicionarItem;
 begin
-  if lkpProduto.KeyValue=Null then begin
+  if lkpProduto.KeyValue=Null then
+  begin
      MessageDlg('Produto é um campo obrigatório' ,mtInformation,[mbOK],0);
      lkpProduto.SetFocus;
      abort;
   end;
 
-  if edtValorUnitario.Text <= '0' then begin
+  if TratarValor(edtValorUnitario.Text) <= 0 then
+  begin
      MessageDlg('Valor Unitário não pode ser Zero' ,mtInformation,[mbOK],0);
      edtValorUnitario.SetFocus;
      abort;
   end;
 
-  if edtQuantidade.Text <= '0' then begin
+  if edtQuantidade.Text <= '0' then
+  begin
      MessageDlg('Quantidade não pode ser Zero' ,mtInformation,[mbOK],0);
      edtQuantidade.SetFocus;
      abort;
   end;
 
-  if tbItens.Locate('produtoId', lkpProduto.KeyValue, []) then begin
+  if tbItens.Locate('produtoId', lkpProduto.KeyValue, []) then
+  begin
      MessageDlg('Este Produto já foi selecionado' ,mtInformation,[mbOK],0);
      lkpProduto.SetFocus;
      abort;
   end;
 
-  edtTotalProduto.Text := FloatToStr(TotalizarProduto(StrToFloat(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
+  edtTotalProduto.Text := FormatFloat('#,##0.00', TotalizarProduto(TratarValor(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
 
   tbItens.Append;
   tbItens.FieldByName('produtoId').AsString := lkpProduto.KeyValue;
   tbItens.FieldByName('produtoNome').AsString := tbProdutos.FieldByName('produtoNome').AsString;
   tbItens.FieldByName('produtoQuantidade').AsFloat := StrToFloat(edtQuantidade.Text);
-  tbItens.FieldByName('produtoValorUnitario').AsFloat := StrToFloat(edtValorUnitario.Text);
-  tbItens.FieldByName('produtoValorTotal').AsFloat := StrToFloat(edtTotalProduto.Text);
+  tbItens.FieldByName('produtoValorUnitario').AsFloat := TratarValor(edtValorUnitario.Text);
+  tbItens.FieldByName('produtoValorTotal').AsFloat := TratarValor(edtTotalProduto.Text);
   tbItens.Post;
   edtValorTotal.Text := FloatToStr(TotalizarVenda);
   LimparComponenteItem;
@@ -647,12 +652,17 @@ begin
   end;
 end;
 
+function TViewProcessoVendas.TratarValor(AValor: String): Extended;
+begin
+  Result := StrToFloat(ReplaceText(Trim(AValor), '.', ''));
+end;
+
 procedure TViewProcessoVendas.CarregarRegistroSelecionado;
 begin
   lkpProduto.KeyValue   := tbItens.FieldByName('produtoId').AsString;
   edtQuantidade.Text := tbItens.FieldByName('produtoQuantidade').AsString;
-  edtValorUnitario.Text := tbItens.FieldByName('produtoValorUnitario').AsString;
-  edtTotalProduto.Text := tbItens.FieldByName('produtoValorTotal').AsString;
+  edtValorUnitario.Text := FormatFloat('#,##0.00', tbItens.FieldByName('produtoValorUnitario').AsFloat);
+  edtTotalProduto.Text := FormatFloat('#,##0.00', tbItens.FieldByName('produtoValorTotal').AsFloat);
 end;
 
 function TViewProcessoVendas.TotalizarProduto(valorUnitario, Quantidade:Double):Double;
@@ -739,10 +749,13 @@ end;
 
 procedure TViewProcessoVendas.lkpProdutoExit(Sender: TObject);
 begin
-  if lkpProduto.KeyValue<>Null then begin
-    edtValorUnitario.Text := tbProdutos.FieldByName('produtoValor').AsString;
+  if lkpProduto.KeyValue <> Null then
+  begin
+    edtValorUnitario.Text :=
+      FormatFloat('#,##0.00', tbProdutos.FieldByName('produtoValor').AsFloat);
     edtQuantidade.Text := '1';
-    edtTotalProduto.Text := FloatToStr(TotalizarProduto(StrToFloat(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
+    edtTotalProduto.Text := FormatFloat('#,##0.00', TotalizarProduto(TratarValor(edtValorUnitario.Text),
+      StrToFloat(edtQuantidade.Text)));
   end;
 end;
 

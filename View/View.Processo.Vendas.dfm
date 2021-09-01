@@ -1354,9 +1354,10 @@ object ViewProcessoVendas: TViewProcessoVendas
               end
               object edtValorTotal: TEdit
                 Left = 514
-                Top = 14
+                Top = 10
                 Width = 159
                 Height = 21
+                Enabled = False
                 TabOrder = 0
                 OnChange = edtTotalProdutoChange
               end
@@ -1389,10 +1390,11 @@ object ViewProcessoVendas: TViewProcessoVendas
             OnExit = edtQuantidadeExit
           end
           object edtTotalProduto: TEdit
-            Left = 420
+            Left = 428
             Top = 58
             Width = 98
             Height = 21
+            Enabled = False
             TabOrder = 5
             OnChange = edtTotalProdutoChange
           end
@@ -1403,6 +1405,15 @@ object ViewProcessoVendas: TViewProcessoVendas
             Height = 21
             TabOrder = 6
             OnChange = edtDataVendaChange
+          end
+          object edtValorUnitario: TEdit
+            Left = 201
+            Top = 58
+            Width = 98
+            Height = 21
+            TabOrder = 7
+            OnChange = edtValorUnitarioChange
+            OnExit = edtValorUnitarioExit
           end
         end
       end
@@ -1557,14 +1568,6 @@ object ViewProcessoVendas: TViewProcessoVendas
         OnClick = spbFecharTelaClick
       end
     end
-  end
-  object edtValorUnitario: TEdit
-    Left = 290
-    Top = 167
-    Width = 98
-    Height = 21
-    TabOrder = 1
-    OnChange = edtValorUnitarioChange
   end
   object dsVendas: TDataSource
     DataSet = tbVendas
