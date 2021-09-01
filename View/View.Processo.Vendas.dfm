@@ -768,6 +768,7 @@ object ViewProcessoVendas: TViewProcessoVendas
       Color = 3155860
       ParentBackground = False
       TabOrder = 4
+      ExplicitLeft = 0
       object imgLogo: TImage
         Left = 9
         Top = 0
@@ -1311,15 +1312,6 @@ object ViewProcessoVendas: TViewProcessoVendas
             ListSource = dsClientes
             TabOrder = 1
           end
-          object edtDataVenda: TDateEdit
-            Left = 554
-            Top = 17
-            Width = 121
-            Height = 21
-            ClickKey = 114
-            NumGlyphs = 2
-            TabOrder = 2
-          end
           object lkpProduto: TDBLookupComboBox
             Left = 3
             Top = 58
@@ -1328,27 +1320,8 @@ object ViewProcessoVendas: TViewProcessoVendas
             KeyField = 'produtoId'
             ListField = 'produtoNome'
             ListSource = dsProdutos
-            TabOrder = 3
+            TabOrder = 2
             OnExit = lkpProdutoExit
-          end
-          object edtValorUnitario: TCurrencyEdit
-            Left = 201
-            Top = 61
-            Width = 91
-            Height = 21
-            DisplayFormat = ',0.00;-,0.00'
-            TabOrder = 4
-          end
-          object edtTotalProduto: TCurrencyEdit
-            Left = 429
-            Top = 61
-            Width = 119
-            Height = 21
-            TabStop = False
-            DisplayFormat = ',0.00;-,0.00'
-            ParentColor = True
-            ReadOnly = True
-            TabOrder = 5
           end
           object pnlVenda: TPanel
             Left = 0
@@ -1359,7 +1332,7 @@ object ViewProcessoVendas: TViewProcessoVendas
             BevelOuter = bvNone
             Color = clAppWorkSpace
             ParentBackground = False
-            TabOrder = 6
+            TabOrder = 3
             object pnlTotalizador: TPanel
               Left = 0
               Top = 163
@@ -1408,14 +1381,32 @@ object ViewProcessoVendas: TViewProcessoVendas
               OnKeyDown = grdItensVendaKeyDown
             end
           end
-          object edtQuantidade: TCurrencyEdit
+          object edtQuantidade: TEdit
             Left = 316
-            Top = 61
-            Width = 76
+            Top = 62
+            Width = 98
             Height = 21
-            DisplayFormat = ',0.00;-,0.00'
-            TabOrder = 7
+            TabOrder = 4
+            OnChange = edtQuantidadeChange
             OnExit = edtQuantidadeExit
+          end
+          object edtTotalProduto: TEdit
+            Left = 428
+            Top = 62
+            Width = 98
+            Height = 21
+            NumbersOnly = True
+            TabOrder = 5
+            OnExit = edtTotalProdutoExit
+          end
+          object edtDataVenda: TEdit
+            Left = 554
+            Top = 18
+            Width = 98
+            Height = 21
+            NumbersOnly = True
+            TabOrder = 6
+            OnExit = edtDataVendaExit
           end
         end
       end
@@ -1570,6 +1561,14 @@ object ViewProcessoVendas: TViewProcessoVendas
         OnClick = spbFecharTelaClick
       end
     end
+  end
+  object edtValorUnitario: TEdit
+    Left = 290
+    Top = 171
+    Width = 98
+    Height = 21
+    TabOrder = 1
+    OnExit = edtValorUnitarioExit
   end
   object dsVendas: TDataSource
     DataSet = tbVendas

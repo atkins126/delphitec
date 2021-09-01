@@ -62,7 +62,7 @@ function TModelVendasSQL.Apagar: Boolean;
 begin
   if MessageDlg('Apagar o Registro: ' + #13 + #13 + 'Venda Nro: ' + IntToStr(F_VendaId), mtConfirmation, [mbYes, mbNo],0) = mbNo then
   begin
-    Result := False;
+    Result := false;
     abort;
   end;
 

@@ -937,7 +937,7 @@ object ViewProcessoVendas: TViewProcessoVendas
         Top = 2
         Width = 735
         Height = 331
-        ActivePage = tabConsulta
+        ActivePage = tabCadastro
         Align = alClient
         TabOrder = 0
         object tabConsulta: TTabSheet
