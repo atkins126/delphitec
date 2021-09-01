@@ -768,7 +768,6 @@ object ViewProcessoVendas: TViewProcessoVendas
       Color = 3155860
       ParentBackground = False
       TabOrder = 4
-      ExplicitLeft = 0
       object imgLogo: TImage
         Left = 9
         Top = 0
@@ -965,6 +964,8 @@ object ViewProcessoVendas: TViewProcessoVendas
           Caption = 'Cadastro de Venda'
           ImageIndex = 1
           OnShow = tabCadastroShow
+          ExplicitLeft = 2
+          ExplicitTop = 26
           object Label3: TLabel
             Left = 554
             Top = 2
@@ -1383,7 +1384,7 @@ object ViewProcessoVendas: TViewProcessoVendas
           end
           object edtQuantidade: TEdit
             Left = 316
-            Top = 62
+            Top = 58
             Width = 98
             Height = 21
             TabOrder = 4
@@ -1392,21 +1393,19 @@ object ViewProcessoVendas: TViewProcessoVendas
           end
           object edtTotalProduto: TEdit
             Left = 428
-            Top = 62
+            Top = 58
             Width = 98
             Height = 21
-            NumbersOnly = True
             TabOrder = 5
-            OnExit = edtTotalProdutoExit
+            OnChange = edtTotalProdutoChange
           end
           object edtDataVenda: TEdit
             Left = 554
             Top = 18
             Width = 98
             Height = 21
-            NumbersOnly = True
             TabOrder = 6
-            OnExit = edtDataVendaExit
+            OnChange = edtDataVendaChange
           end
         end
       end
@@ -1564,11 +1563,11 @@ object ViewProcessoVendas: TViewProcessoVendas
   end
   object edtValorUnitario: TEdit
     Left = 290
-    Top = 171
+    Top = 167
     Width = 98
     Height = 21
     TabOrder = 1
-    OnExit = edtValorUnitarioExit
+    OnChange = edtValorUnitarioChange
   end
   object dsVendas: TDataSource
     DataSet = tbVendas

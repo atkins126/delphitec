@@ -54,7 +54,7 @@ begin
       Connection.Params.Values['Server'] := Arquivo.ReadString('PROJ', 'Server', 'localhost');
       Connection.Params.Values['Database'] := '';
       Connection.Params.Values['Username'] := Arquivo.ReadString('PROJ', 'Username', 'root');
-      Connection.Params.Values['Password'] := Arquivo.ReadString('PROJ', 'Password', '6511');
+      Connection.Params.Values['Password'] := Arquivo.ReadString('PROJ', 'Password', 'root');
       Connection.Params.Values['Port'] := Arquivo.ReadString('PROJ', 'Port', '3306');
       Connection.Connected := True;
       if Connection.Connected then

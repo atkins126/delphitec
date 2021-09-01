@@ -7,7 +7,8 @@ uses
   System.MaskUtils,
   System.Classes,
 
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls,
+  Vcl.StdCtrls;
 
 type
     TFormato = (CNPJ, CPF, RG, PISPASEP, InscricaoEstadual, CNPJorCPF, TelefoneFixo, Celular, Personalizado,
@@ -33,7 +34,7 @@ begin
     Str := '0';
 
   try
-    Result := FormatFloat('#,##0.00', StrToFloat(str) / 100);
+    Result := FormatFloat('#,##0.00', StrToFloat(str)/100);
   except
     Result := FormatFloat('#,##0.00', 0);
   end;
@@ -136,8 +137,8 @@ var
 begin
     TThread.Queue(Nil, procedure
     begin
-        if obj is TLabeledEdit then
-            texto := TLabeledEdit(obj).Text;
+        if obj is TEdit then
+            texto := TEdit(obj).Text;
 
         // Telefone Fixo...
         if formato = TelefoneFixo then
@@ -212,12 +213,12 @@ begin
             texto := FormataValor(SomenteNumero(texto))+ Extra;
             end;
 
-        if obj is TLabeledEdit then
+        if obj is TEdit then
         begin
-            TLabeledEdit(obj).Text := texto;
-             TLabeledEdit(obj).SelStart := Length(  TLabeledEdit(obj).Text );
-            //TLabeledEdit(obj).Text := FormatFloat( 'R$ ###,##0.00', dbl_valor ) ;
-            //TLabeledEdit(obj).CaretPosition := TLabeledEdit(obj).Text.Length;
+            TEdit(obj).Text := texto;
+             TEdit(obj).SelStart := Length(  TEdit(obj).Text );
+            //TEdit(obj).Text := FormatFloat( 'R$ ###,##0.00', dbl_valor ) ;
+            //TEdit(obj).CaretPosition := TEdit(obj).Text.Length;
         end;
 
     end);

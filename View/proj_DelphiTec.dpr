@@ -16,7 +16,8 @@ uses
   DAO.Interfaces in '..\DAO\DAO.Interfaces.pas',
   Controller.Produto in '..\Controller\Controller.Produto.pas',
   Controller.Estoque in '..\Controller\Controller.Estoque.pas',
-  View.Processo.Vendas in 'View.Processo.Vendas.pas';
+  View.Processo.Vendas in 'View.Processo.Vendas.pas',
+  View.Formatar in 'View.Formatar.pas';
 
 {$R *.res}
 

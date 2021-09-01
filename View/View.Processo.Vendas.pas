@@ -127,10 +127,10 @@ type
     procedure FormShow(Sender: TObject);
     procedure tabCadastroShow(Sender: TObject);
     procedure lkpProdutoExit(Sender: TObject);
-    procedure edtValorUnitarioExit(Sender: TObject);
+    procedure edtDataVendaChange(Sender: TObject);
+    procedure edtTotalProdutoChange(Sender: TObject);
+    procedure edtValorUnitarioChange(Sender: TObject);
     procedure edtQuantidadeChange(Sender: TObject);
-    procedure edtTotalProdutoExit(Sender: TObject);
-    procedure edtDataVendaExit(Sender: TObject);
   private
     Operacao: TOperacao;
     FControllerVenda : IControllerVenda;
@@ -203,7 +203,7 @@ begin
     edtVendaId.Text     := IntToStr(FVenda.VendaId);
     lkpCliente.KeyValue := FVenda.clienteId;
     edtDataVenda.Text   := DateToStr(FVenda.DataVenda);
-    edtValorTotal.Value := DateToStr(FVenda.TotalVenda);
+    edtValorTotal.Text := FloatToStr(FVenda.TotalVenda);
   end
   else
   begin
@@ -222,25 +222,29 @@ begin
 end;
 
 
-procedure TViewProcessoVendas.edtDataVendaExit(Sender: TObject);
+procedure TViewProcessoVendas.edtDataVendaChange(Sender: TObject);
 begin
   Formatar(edtDataVenda, Dt);
+end;
+
+procedure TViewProcessoVendas.edtQuantidadeChange(Sender: TObject);
+begin
+  //Formatar(edtQuantidade, Valor);
 end;
 
 procedure TViewProcessoVendas.edtQuantidadeExit(Sender: TObject);
 begin
   edtTotalProduto.Text := FloatToStr(TotalizarProduto(StrToFloat(edtValorUnitario.Text), StrToFloat(edtQuantidade.Text)));
-  Formatar(edtQuantidade, Valor);
 end;
 
-procedure TViewProcessoVendas.edtTotalProdutoExit(Sender: TObject);
+procedure TViewProcessoVendas.edtTotalProdutoChange(Sender: TObject);
 begin
-  Formatar(edtTotalProduto, Valor);
+  //Formatar(edtTotalProduto, Valor);
 end;
 
-procedure TViewProcessoVendas.edtValorUnitarioExit(Sender: TObject);
+procedure TViewProcessoVendas.edtValorUnitarioChange(Sender: TObject);
 begin
-  Formatar(edtValorUnitario, Valor);
+  //Formatar(edtValorUnitario, Valor);
 end;
 
 procedure TViewProcessoVendas.ExibirLabelIndice(Campo: string; aLabel:TLabel);
@@ -525,7 +529,7 @@ begin
 
     FVenda.ClienteId := lkpCliente.KeyValue;
     FVenda.DataVenda := StrToDate(edtDataVenda.Text);
-    FVenda.TotalVenda := StrToDate(edtValorTotal.Text);
+    FVenda.TotalVenda := StrToFloat(edtValorTotal.Text);
 
     FVenda.VendaId := FControllerVenda.Inserir(FVenda, tbItens);
   end
@@ -535,7 +539,7 @@ begin
 
     FVenda.ClienteId := lkpCliente.KeyValue;
     FVenda.DataVenda := StrToDate(edtDataVenda.Text);
-    FVenda.TotalVenda := StrToDate(edtValorTotal.Text);
+    FVenda.TotalVenda := StrToFloat(edtValorTotal.Text);
 
     FVenda := FControllerVenda.Atualizar(FVenda, tbItens);
   end;
